@@ -39,7 +39,7 @@ jobs:
 
       - name: Prepare repo
         id: prepare
-        uses: uraimo/run-on-arch-action@v2
+        uses: uraimo/run-on-arch-action@v2.7.1
         with:
           arch: ${{ matrix.arch }}
           distro: archarm_latest
