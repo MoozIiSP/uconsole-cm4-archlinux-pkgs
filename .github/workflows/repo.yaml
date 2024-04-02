@@ -1,5 +1,4 @@
-name: Build and Release ArchLinux AUR Packages for uConsole
-run-name: ${{ github.actor }} is building and releasing NixOS-WSL 🚀
+name: Arch AUR Repository Build
 
 on:
   workflow_dispatch:
