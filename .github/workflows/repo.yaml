@@ -55,12 +55,9 @@ jobs:
             pacman-key --init
             pacman-key --populate archlinuxarm
             pacman -Syyu --noconfirm
-            pacman -S --noconfirm base-devel git
+            pacman -S --noconfirm base-devel git sudo
             echo 'auruser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/auruser
             useradd -m auruser
-
-            # install sudo
-            pacman -S sudo --noconfirm
 
             # 安装aurutil
             cd /tmp
