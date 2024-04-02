@@ -1,0 +1,118 @@
+build-arm:
+  runs-on: ubuntu-latest
+  name: Build on ${{ matrix.arch }}
+
+  #env:
+  #  GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+  strategy:
+    matrix:
+      include:
+        - arch: aarch64
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set variables
+      id: set-vars
+      run: |
+        echo "::set-output name=date::$(date +'%Y-%m-%d %H:%M')"
+        echo "::set-output name=repo-id::$(echo ${{ github.repository }} | sed 's/\//-/g')"
+
+    # - name: Store private key
+    #   id: gpg
+    #   run: |
+    #     echo "$GPG_PRIVATE_KEY" > ${{ runner.temp }}/gpg.key
+
+    - name: Prepare repo
+      id: prepare
+      uses: uraimo/run-on-arch-action@v2
+      with:
+        arch: ${{ matrix.arch }}
+        distro: archarm_latest
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
+        dockerRunArgs: "--volume \"${{ runner.temp }}:/workspace\""
+        env: |
+          PKGEXT: .pkg.tar.zst
+          REPO_IDENTIFIER: ${{ steps.set-vars.outputs.repo-id }}
+        shell: /bin/sh
+        run: |
+          echo ${GITHUB_WORKSPACE}
+          # # 初始化环境和导入GPG密钥
+          # sudo pacman-key --init
+          # sudo pacman-key --populate archlinuxarm
+          # sudo pacman -Syyu --noconfirm
+          # sudo pacman -S --noconfirm base-devel git
+          # echo 'auruser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/auruser
+          # useradd -m auruser
+          # #sudo -u auruser gpg --batch --import /workspace/gpg.key
+          # #rm /workspace/gpg.key
+
+          # # 安装aurutil
+          # cd /tmp
+          # curl --output aurutils.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/aurutils.tar.gz
+          # tar xf aurutils.tar.gz
+          # chmod -R 777 /tmp/aurutils
+          # cd aurutils
+          # sudo -u auruser makepkg --syncdeps --noconfirm
+          # ls -l
+          # pacman -U --noconfirm aurutils-*.pkg.*
+
+          # # 配置本地仓库
+          # echo "[${REPO_IDENTIFIER}]" >> /etc/pacman.conf
+          # echo "SigLevel = Optional TrustAll" >> /etc/pacman.conf
+          # echo "Server = file://${GITHUB_WORKSPACE} " >> /etc/pacman.conf
+          # mkdir -p /home/auruser/${GITHUB_WORKSPACE}
+          # repo-add ${GITHUB_WORKSPACE}/${REPO_IDENTIFIER}.db.tar.gz ${GITHUB_WORKSPACE}/aurutils-*.pkg.*
+
+          # # 修改文件权限以允许auruser访问
+          # chown auruser:auruser /home/auruser/${GITHUB_WORKSPACE}
+          # chmod u+w /home/auruser/${GITHUB_WORKSPACE}
+
+          # pacman -Sy --noconfirm
+
+          # # 拉取需要构建的自定义Arch软件包
+          # export PKGS_DIR=${GITHUB_WORKSPACE}
+          # cd /home/auruser/${GITHUB_WORKSPACE}
+          # sudo -u auruser sh fetch-pkgs.sh
+
+          # # 构建自定义软件包
+          # cd $PKGS_DIR
+          # for pkgdir in *; do
+          #     if [ -d "$pkgdir" ]; then
+          #         sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root ${GITHUB_WORKSPACE} ${pkg} || echo "!!! Package ${pkg} failed"
+          #     fi
+          # done
+
+          # # 清理和准备仓库
+          # # 请在这里添加更多的自定义包和AUR包构建命令
+          # # ...
+
+    - name: Remove symbolic links
+      run: |
+        cd ${GITHUB_WORKSPACE}
+        ls -al
+        rm -v ${{ steps.set-vars.outputs.repo-id }}.db ${{ steps.set-vars.outputs.repo-id }}.files
+        cp -v ${{ steps.set-vars.outputs.repo-id }}.db.tar.gz ${{ steps.set-vars.outputs.repo-id }}.db
+        cp -v ${{ steps.set-vars.outputs.repo-id }}.files.tar.gz ${{ steps.set-vars.outputs.repo-id }}.files
+        rm -fv build-log.txt *.sh
+        ls -al
+
+    - name: Remove release
+      uses: cb80/delrel@latest
+      with:
+        tag: ${{ steps.prepare.outputs.arch }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ steps.prepare.outputs.arch }}
+        name: Arch Linux ARM AUR and Custom Build ${{ github.run_number }} from ${{ steps.set-vars.outputs.date }} for ${{ steps.prepare.outputs.arch }}
+        body: |
+          Instructions for adding this repo...
+        artifacts: ${{ runner.temp }}/*
+        draft: false
+        prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
