@@ -59,13 +59,16 @@ jobs:
             echo 'auruser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/auruser
             useradd -m auruser
 
+            # install sudo
+            pacman -S sudo --noconfirm
+
             # 安装aurutil
             cd /tmp
             curl --output aurutils.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/aurutils.tar.gz
             tar xf aurutils.tar.gz
             chmod -R 777 /tmp/aurutils
             cd aurutils
-            su - auruser makepkg --syncdeps --noconfirm
+            sudo -u auruser makepkg --syncdeps --noconfirm
             ls -l
             pacman -U --noconfirm aurutils-*.pkg.*
 
