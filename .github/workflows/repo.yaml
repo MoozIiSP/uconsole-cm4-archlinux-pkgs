@@ -47,7 +47,7 @@ jobs:
           dockerRunArgs: "--volume \"${{ runner.temp }}:/workspace\""
           env: |
             PKGEXT: .pkg.tar.zst
-            REPO_IDENTIFIER: ${{ steps.set-vars.outputs.repo-id }}
+            REPO_IDENTIFIER: ${repo-id}
           shell: /bin/sh
           run: |
             # /home/runner/work/uconsole-cm4-archlinux-pkgs/uconsole-cm4-archlinux-pkgs
