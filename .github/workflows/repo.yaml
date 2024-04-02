@@ -1,4 +1,4 @@
-name: Build and Release NixOS-WSL installer
+name: Build and Release ArchLinux AUR Packages for uConsole
 run-name: ${{ github.actor }} is building and releasing NixOS-WSL 🚀
 
 on:
@@ -29,8 +29,8 @@ jobs:
       - name: Set variables
         id: set-vars
         run: |
-          echo "::set-output name=date::$(date +'%Y-%m-%d %H:%M')"
-          echo "::set-output name=repo-id::$(echo ${{ github.repository }} | sed 's/\//-/g')"
+          echo "date=$(date +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+          echo "repo_id=$(echo '${{ github.repository }}' | sed 's/\//-/g')" >> $GITHUB_ENV
 
       # - name: Store private key
       #   id: gpg
@@ -50,7 +50,11 @@ jobs:
             REPO_IDENTIFIER: ${{ steps.set-vars.outputs.repo-id }}
           shell: /bin/sh
           run: |
+            # /home/runner/work/uconsole-cm4-archlinux-pkgs/uconsole-cm4-archlinux-pkgs
+            echo 123
             echo ${GITHUB_WORKSPACE}
+            ls /workspace
+            ls ${GITHUB_WORKSPACE}
             # # 初始化环境和导入GPG密钥
             # sudo pacman-key --init
             # sudo pacman-key --populate archlinuxarm
