@@ -46,7 +46,7 @@ jobs:
           dockerRunArgs: "--volume \"${{ runner.temp }}:/workspace\""
           env: |
             PKGEXT: .pkg.tar.zst
-            REPO_IDENTIFIER: ${repo_id}
+            REPO_IDENTIFIER: ${{ steps.set-vars.outputs.repo-id }}
             PKGS_DIR: ${GITHUB_WORKSPACE}/pkgs
           shell: /bin/sh
           run: |
@@ -81,6 +81,7 @@ jobs:
             pacman -Sy --noconfirm
 
             # 拉取需要构建的自定义Arch软件包
+            cp ${GITHUB_WORKSPACE}/fetch-pkgs.sh /workspace/fetch-pkgs.sh
             mkdir -p $PKGS_DIR
             sudo -u auruser sh fetch-pkgs.sh
 
