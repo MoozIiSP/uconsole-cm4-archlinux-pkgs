@@ -52,9 +52,6 @@ jobs:
           run: |
             echo "::set-output name=arch::$(uname -m)"
 
-            # ${GITHUB_WORKSPACE}: /home/runner/work/uconsole-cm4-archlinux-pkgs/uconsole-cm4-archlinux-pkgs
-            # 初始化环境和导入GPG密钥
-            pacman -S --noconfirm awk
             pacman-key --init
             pacman-key --populate archlinuxarm
             pacman -Syyu --noconfirm
