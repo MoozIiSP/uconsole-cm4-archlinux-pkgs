@@ -85,6 +85,7 @@ jobs:
             ls -l ${GITHUB_WORKSPACE}
             cp ${GITHUB_WORKSPACE}/fetch-pkgs.sh /workspace/fetch-pkgs.sh
             mkdir -p /workspace/pkgs
+            chmod -R 777 /workspace/pkgs
 
             # 构建自定义软件包
             sudo -u auruser sh fetch-pkgs.sh
