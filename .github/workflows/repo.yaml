@@ -60,10 +60,10 @@ jobs:
             useradd -m auruser
 
             # 安装aurutil
-            cd /tmp
+            cd ${GITHUB_WORKFLOW}
             curl --output aurutils.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/aurutils.tar.gz
             tar xf aurutils.tar.gz
-            chmod -R 777 /tmp/aurutils
+            chmod -R 777 ${GITHUB_WORKFLOW}/aurutils
             cd aurutils
             sudo -u auruser makepkg --syncdeps --noconfirm
             ls -l
