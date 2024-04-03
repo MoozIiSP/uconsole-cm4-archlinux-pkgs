@@ -81,6 +81,7 @@ jobs:
             pacman -Sy --noconfirm
 
             # 拉取需要构建的自定义Arch软件包
+            ls -l ${GITHUB_WORKSPACE}
             cp ${GITHUB_WORKSPACE}/fetch-pkgs.sh /workspace/fetch-pkgs.sh
             mkdir -p /workspace/pkgs
             sudo -u auruser sh fetch-pkgs.sh
