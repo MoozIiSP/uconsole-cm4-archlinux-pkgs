@@ -1,11 +1,11 @@
 name: Arch AUR Repository Build
 
 on:
-  workflow_dispatch:
+  #workflow_dispatch:
   schedule:
     # 每年5月/10月编译
     - cron: '0 0 15 5,11 *'
-  #push:
+  push:
   # tags: []
 
 jobs:
