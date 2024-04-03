@@ -29,7 +29,7 @@ jobs:
         id: set-vars
         run: |
           echo "::set-output name=date::$(date +'%Y-%m-%d %H:%M')"
-          echo "::set-output name=repo_id::$(echo '${{ github.repository }}' | sed 's/\//-/g')"
+          echo "::set-output name=repo-id::$(echo ${{ github.repository }} | sed 's/\//-/g')"
 
       # - name: Store private key
       #   id: gpg
@@ -38,16 +38,16 @@ jobs:
 
       - name: Prepare repo
         id: prepare
-        uses: uraimo/run-on-arch-action@v2.7.1
+        uses: uraimo/run-on-arch-action@v2
         with:
           arch: ${{ matrix.arch }}
           distro: archarm_latest
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          dockerRunArgs: "--volume \"${{ runner.temp }}:/workspace\""
+          dockerRunArgs: |
+            --volume "${{ runner.temp }}:/workspace"
           env: |
             PKGEXT: .pkg.tar.zst
             REPO_IDENTIFIER: ${{ steps.set-vars.outputs.repo-id }}
-            PKGS_DIR: ${GITHUB_WORKSPACE}/pkgs
           shell: /bin/sh
           run: |
             echo "::set-output name=arch::$(uname -m)"
@@ -55,7 +55,7 @@ jobs:
             pacman-key --init
             pacman-key --populate archlinuxarm
             pacman -Syyu --noconfirm
-            pacman -S --noconfirm base-devel git awk sudo
+            pacman -S --noconfirm base-devel git sudo
             echo 'auruser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/auruser
             useradd -m auruser
 
@@ -82,15 +82,15 @@ jobs:
 
             # 拉取需要构建的自定义Arch软件包
             cp ${GITHUB_WORKSPACE}/fetch-pkgs.sh /workspace/fetch-pkgs.sh
-            mkdir -p $PKGS_DIR
+            mkdir -p /workspace/pkgs
             sudo -u auruser sh fetch-pkgs.sh
 
             # 构建自定义软件包
-            cd $PKGS_DIR
+            cd /workspace/pkgs
             for pkgdir in *; do
               echo $pkgdir
               # if [ -d "$pkgdir" ]; then
-              #     sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root ${GITHUB_WORKSPACE} ${pkg} || echo "!!! Package ${pkg} failed"
+              #     sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root /workspace ${pkg} || echo "!!! Package ${pkg} failed"
               # fi
             done
             chmod -R 777 /workspace
