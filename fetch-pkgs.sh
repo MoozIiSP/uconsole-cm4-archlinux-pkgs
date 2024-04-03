@@ -1,3 +1,5 @@
+mkdir -p $PKGS_DIR
+
 #git clone --depth 1 https://github.com/melentye/alarm-pkgbuilds pkgs/
 # using svn to fetch custom PKGBUILDs
 svn export https://github.com/MoozIiSP/linux-uconsole-rpi4/branches/rpi-6.6.y/PKGBUILDs/linux-clockworkpi-uc4 \
