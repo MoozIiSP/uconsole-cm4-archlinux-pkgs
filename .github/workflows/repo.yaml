@@ -50,6 +50,7 @@ jobs:
             PKGS_DIR: ${GITHUB_WORKSPACE}/pkgs
           shell: /bin/sh
           run: |
+            echo $GITHUB_ENV
             export REPO_IDENTIFIER=${repo-id}
 
             # ${GITHUB_WORKSPACE}: /home/runner/work/uconsole-cm4-archlinux-pkgs/uconsole-cm4-archlinux-pkgs
