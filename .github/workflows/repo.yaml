@@ -73,8 +73,11 @@ jobs:
             echo "[${REPO_IDENTIFIER}]" >> /etc/pacman.conf
             echo "SigLevel = Optional TrustAll" >> /etc/pacman.conf
             echo "Server = file://${GITHUB_WORKSPACE} " >> /etc/pacman.conf
+            echo "========="
+            cat /etc/pacman.conf
+            echo "========="
             # mkdir -p /home/auruser/${GITHUB_WORKSPACE}
-            repo-add ${GITHUB_WORKSPACE}/${REPO_IDENTIFIER}.db.tar.gz ${GITHUB_WORKSPACE}/aurutils-*.pkg.*
+            repo-add ${GITHUB_WORKSPACE}/${REPO_IDENTIFIER}.db.tar.gz ${GITHUB_WORKSPACE}/aurutils/aurutils-*.pkg.*
 
             # # 修改文件权限以允许auruser访问
             # chown auruser:auruser ${GITHUB_WORKSPACE}
