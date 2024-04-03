@@ -50,7 +50,7 @@ jobs:
             PKGS_DIR: ${GITHUB_WORKSPACE}/pkgs
           shell: /bin/sh
           run: |
-            export REPO_IDENTIFIER=$repo-id
+            export REPO_IDENTIFIER=${repo-id}
 
             # ${GITHUB_WORKSPACE}: /home/runner/work/uconsole-cm4-archlinux-pkgs/uconsole-cm4-archlinux-pkgs
             # 初始化环境和导入GPG密钥
@@ -72,14 +72,14 @@ jobs:
             pacman -U --noconfirm ${GITHUB_WORKSPACE}/aurutils/aurutils-*.pkg.*
 
             # 配置本地仓库
-            echo "[$repo-id]" >> /etc/pacman.conf
+            echo "[$REPO_IDENTIFIER]" >> /etc/pacman.conf
             echo "SigLevel = Optional TrustAll" >> /etc/pacman.conf
             echo "Server = file://${GITHUB_WORKSPACE} " >> /etc/pacman.conf
             echo "========="
             cat /etc/pacman.conf
             echo "========="
             # mkdir -p /home/auruser/${GITHUB_WORKSPACE}
-            repo-add ${GITHUB_WORKSPACE}/$repo-id.db.tar.gz ${GITHUB_WORKSPACE}/aurutils/aurutils-*.pkg.*
+            repo-add ${GITHUB_WORKSPACE}/$REPO_IDENTIFIER.db.tar.gz ${GITHUB_WORKSPACE}/aurutils/aurutils-*.pkg.*
 
             # # 修改文件权限以允许auruser访问
             # chown auruser:auruser ${GITHUB_WORKSPACE}
@@ -95,7 +95,7 @@ jobs:
             for pkgdir in *; do
               echo $pkgdir
               # if [ -d "$pkgdir" ]; then
-              #     sudo -u auruser aur sync --sign -A --noconfirm --noview --database $repo-id --root ${GITHUB_WORKSPACE} ${pkg} || echo "!!! Package ${pkg} failed"
+              #     sudo -u auruser aur sync --sign -A --noconfirm --noview --database $REPO_IDENTIFIER --root ${GITHUB_WORKSPACE} ${pkg} || echo "!!! Package ${pkg} failed"
               # fi
             done
 
