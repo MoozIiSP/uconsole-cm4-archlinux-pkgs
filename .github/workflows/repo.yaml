@@ -67,7 +67,7 @@ jobs:
             cd aurutils
             sudo -u auruser makepkg --syncdeps --noconfirm
             ls -l
-            pacman -U --noconfirm aurutils-*.pkg.*
+            pacman -U --noconfirm ${GITHUB_WORKSPACE}/aurutils/aurutils-*.pkg.*
 
             # 配置本地仓库
             echo "[${REPO_IDENTIFIER}]" >> /etc/pacman.conf
