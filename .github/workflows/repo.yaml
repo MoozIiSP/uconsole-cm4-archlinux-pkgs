@@ -86,7 +86,9 @@ jobs:
             mkdir -p /workspace/pkgs
 
             # 构建自定义软件包
+            echo "fuck"
             cd /workspace/pkgs
+            pwd
             ls -l
             sudo -u auruser sh fetch-pkgs.sh
             for pkgdir in *; do
