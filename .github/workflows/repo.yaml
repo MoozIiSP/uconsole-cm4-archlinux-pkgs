@@ -28,8 +28,8 @@ jobs:
       - name: Set variables
         id: set-vars
         run: |
-          echo "date=$(date +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
-          echo "repo_id=$(echo '${{ github.repository }}' | sed 's/\//-/g')" >> $GITHUB_ENV
+          echo "::set-output name=date::$(date +'%Y-%m-%d %H:%M')"
+          echo "::set-output name=repo_id::$(echo '${{ github.repository }}' | sed 's/\//-/g')"
 
       # - name: Store private key
       #   id: gpg
@@ -46,49 +46,44 @@ jobs:
           dockerRunArgs: "--volume \"${{ runner.temp }}:/workspace\""
           env: |
             PKGEXT: .pkg.tar.zst
-            REPO_IDENTIFIER: ${repo-id}
+            REPO_IDENTIFIER: ${repo_id}
             PKGS_DIR: ${GITHUB_WORKSPACE}/pkgs
           shell: /bin/sh
           run: |
-            echo $GITHUB_ENV
-            export REPO_IDENTIFIER=${repo-id}
+            echo "::set-output name=arch::$(uname -m)"
 
             # ${GITHUB_WORKSPACE}: /home/runner/work/uconsole-cm4-archlinux-pkgs/uconsole-cm4-archlinux-pkgs
             # 初始化环境和导入GPG密钥
+            pacman -S --noconfirm awk
             pacman-key --init
             pacman-key --populate archlinuxarm
             pacman -Syyu --noconfirm
-            pacman -S --noconfirm base-devel git svn sudo
+            pacman -S --noconfirm base-devel git awk sudo
             echo 'auruser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/auruser
             useradd -m auruser
 
             # 安装aurutil
-            cd ${GITHUB_WORKSPACE}
+            cd /tmp
             curl --output aurutils.tar.gz https://aur.archlinux.org/cgit/aur.git/snapshot/aurutils.tar.gz
             tar xf aurutils.tar.gz
-            chmod -R 777 ${GITHUB_WORKSPACE}/aurutils
+            chmod -R 777 /tmp/aurutils
             cd aurutils
             sudo -u auruser makepkg --syncdeps --noconfirm
             ls -l
-            pacman -U --noconfirm ${GITHUB_WORKSPACE}/aurutils/aurutils-*.pkg.*
+            pacman -U --noconfirm /tmp/aurutils/aurutils-*.pkg.*
+
+            cp -v /tmp/aurutils/aurutils-*.pkg.* /workspace
+            repo-add /workspace/${REPO_IDENTIFIER}.db.tar.gz /workspace/aurutils-*.pkg.*
+            chmod -R 777 /workspace
+            ls -l /workspace
 
             # 配置本地仓库
-            echo "[$REPO_IDENTIFIER]" >> /etc/pacman.conf
+            echo "[${REPO_IDENTIFIER}]" >> /etc/pacman.conf
             echo "SigLevel = Optional TrustAll" >> /etc/pacman.conf
-            echo "Server = file://${GITHUB_WORKSPACE} " >> /etc/pacman.conf
-            echo "========="
-            cat /etc/pacman.conf
-            echo "========="
-            # mkdir -p /home/auruser/${GITHUB_WORKSPACE}
-            repo-add ${GITHUB_WORKSPACE}/$REPO_IDENTIFIER.db.tar.gz ${GITHUB_WORKSPACE}/aurutils/aurutils-*.pkg.*
-
-            # # 修改文件权限以允许auruser访问
-            # chown auruser:auruser ${GITHUB_WORKSPACE}
+            echo "Server = file:///workspace " >> /etc/pacman.conf
             pacman -Sy --noconfirm
 
             # 拉取需要构建的自定义Arch软件包
-            cd ${GITHUB_WORKSPACE}
-            chmod u+w ${GITHUB_WORKSPACE}
             mkdir -p $PKGS_DIR
             sudo -u auruser sh fetch-pkgs.sh
 
@@ -97,9 +92,10 @@ jobs:
             for pkgdir in *; do
               echo $pkgdir
               # if [ -d "$pkgdir" ]; then
-              #     sudo -u auruser aur sync --sign -A --noconfirm --noview --database $REPO_IDENTIFIER --root ${GITHUB_WORKSPACE} ${pkg} || echo "!!! Package ${pkg} failed"
+              #     sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root ${GITHUB_WORKSPACE} ${pkg} || echo "!!! Package ${pkg} failed"
               # fi
             done
+            chmod -R 777 /workspace
 
       - name: Remove symbolic links
         run: |
