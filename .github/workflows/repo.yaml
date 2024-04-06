@@ -92,7 +92,7 @@ jobs:
             cd /workspace/pkgs
             for pkgdir in *; do
               if [ -d "$pkgdir" ]; then
-                  sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root /workspace ${pkgdir} || echo "!!! Package ${pkg} failed"
+                  sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root /workspace/pkgs ${pkgdir} || echo "!!! Package ${pkgdir} failed"
               fi
             done
             chmod -R 777 /workspace
