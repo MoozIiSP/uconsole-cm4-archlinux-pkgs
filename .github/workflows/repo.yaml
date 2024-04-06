@@ -92,13 +92,15 @@ jobs:
             cd /workspace/pkgs
             for pkgdir in *; do
               if [ -d "$pkgdir" ]; then
-                  sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root /workspace ${pkgdir} || echo "!!! Package ${pkgdir} failed"
+                  cd $pkgdir
+                  sudo -u auruser makepkg -s
+                  pushd
               fi
             done
             chmod -R 777 /workspace
             ls -l
             echo "========"
-            ls -l /workspace
+            ls -l /workspace/pkgs/*/*.zst
 
       - name: Remove symbolic links
         run: |
