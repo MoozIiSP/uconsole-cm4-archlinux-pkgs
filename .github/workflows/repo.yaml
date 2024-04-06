@@ -91,12 +91,14 @@ jobs:
             sudo -u auruser sh fetch-pkgs.sh
             cd /workspace/pkgs
             for pkgdir in *; do
-              echo $pkgdir
-              # if [ -d "$pkgdir" ]; then
-              #     sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root /workspace ${pkg} || echo "!!! Package ${pkg} failed"
-              # fi
+              if [ -d "$pkgdir" ]; then
+                  sudo -u auruser aur sync --sign -A --noconfirm --noview --database ${REPO_IDENTIFIER} --root /workspace ${pkg} || echo "!!! Package ${pkg} failed"
+              fi
             done
             chmod -R 777 /workspace
+            ls -l
+            echo "========"
+            ls -l /workspace
 
       - name: Remove symbolic links
         run: |
